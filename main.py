@@ -10,9 +10,8 @@ import os
 # 使用 lifespan 来加载模型
 async def lifespan_event(app: FastAPI):
     try:
-        # 读取 provider 选项
-        args = parse_args()
-        provider = args.provider  # 从命令行参数获取 provider
+        # 从环境变量读取 provider 选项
+        provider = os.getenv('PROVIDER')
         # 初始化语音识别器
         app.state.recognizer = SpeechRecognizer(provider)
         app.state.models_loaded = True
@@ -96,4 +95,4 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=args.port, workers=4)
+    uvicorn.run("main:app", host="0.0.0.0", port=args.port, workers=1)

@@ -3,10 +3,10 @@ Description=FastAPI Speech Recognition Service
 After=network.target
 
 [Service]
-User=youruser  # 你的 Linux 用户
-Group=youruser
+User=root
+Group=root
 WorkingDirectory=/data/apps/audio-rec
-ExecStart=/your_project/venv/bin/gunicorn -c gunicorn_conf.py app:app
+ExecStart=/usr/local/anaconda3/envs/audio/bin/gunicorn -c gunicorn_conf.py main:app
 Restart=always
 
 [Install]
