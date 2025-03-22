@@ -339,10 +339,11 @@
 
                 let formattedResult = ''
                 const data = await response.json();
-                const results = data.results;
-                for (const result of results) {
-                    console.log(result)
-                    formattedResult += `[${result.speaker}] ${result.start.toFixed(2)}s - ${result.end.toFixed(2)}s: ${result.text}\n`;
+                formattedResult += `说话人分离处理时间: ${data.diarization_time.toFixed(2)}s\n`
+                formattedResult += `语音识别处理时间: ${data.asr_time.toFixed(2)}s\n`
+                for (const sentence of data.sentences) {
+                    
+                    formattedResult += `[${sentence.speaker}] ${sentence.start.toFixed(2)}s - ${sentence.end.toFixed(2)}s: ${sentence.text}\n`;
                 }
 
                 resultContent.style.whiteSpace = 'pre-wrap';

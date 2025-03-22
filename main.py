@@ -12,8 +12,6 @@ async def lifespan_event(app: FastAPI):
     try:
         # 读取 provider 选项
         provider = args.provider  # 从命令行参数获取 provider
-        print(f"Using provider: {provider}")
-
         # 初始化语音识别器
         app.state.recognizer = SpeechRecognizer(provider)
         app.state.models_loaded = True
@@ -59,11 +57,12 @@ async def process_audio(audio: UploadFile = File(...)):
 
         # 处理音频文件
         results = app.state.recognizer.process_audio(file_path)
-
         # 删除临时文件
         os.remove(file_path)
 
-        return JSONResponse(content={'results': results})
+        print(results)
+
+        return JSONResponse(content=results)
 
     except Exception as e:
         print(f"Error during audio processing: {e}")
@@ -75,7 +74,7 @@ async def process_audio(audio: UploadFile = File(...)):
 def parse_args():
     parser = argparse.ArgumentParser(description="Run the FastAPI app with uvicorn.")
     parser.add_argument("--port", type=int, default=29999, help="Port to run the server on.")
-    parser.add_argument("--provider", type=str, default='cpu', help="cpu cuda coreml.")
+    parser.add_argument("--provider", type=str, default=None, help="cpu cuda coreml. If not specified, will auto select the best provider.")
 
     return parser.parse_args()
 

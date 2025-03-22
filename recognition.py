@@ -12,22 +12,62 @@ from pathlib import Path
 import datetime as dt
 
 import sherpa_onnx
+import logging
 import soundfile as sf
 
+import coloredlogs
+
+# 配置带颜色的日志输出
+coloredlogs.install(
+    level='INFO',
+    fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    field_styles={
+        'asctime': {'color': 'green'},
+        'levelname': {'bold': True, 'color': 'black'},
+        'name': {'color': 'blue'}
+    },
+    level_styles={
+        'debug': {'color': 'cyan'},
+        'info': {'color': 'green'},
+        'warning': {'color': 'yellow'},
+        'error': {'color': 'red'},
+        'critical': {'color': 'red', 'bold': True}
+    }
+)
 
 class SpeechRecognizer:
-    def __init__(self, provider: str = 'cpu',num_speakers: int = -1, cluster_threshold: float = 0.5):
-        """
-        Initialize the SpeechRecognizer with speaker diarization and speech recognition models.
-        Args:
-            num_speakers: Number of speakers (-1 for auto-detection)
-            cluster_threshold: Threshold for speaker clustering when num_speakers is -1
-        """
-        self.provider = provider
+    def __init__(self, provider: str = None, num_speakers: int = -1, cluster_threshold: float = 0.5):
+
+        if provider is None:
+            provider = self._auto_select_provider()
+
+        logging.info(f"Using provider: {provider}")
+        self.provider = provider or self._auto_select_provider()
         self.num_speakers = num_speakers
         self.cluster_threshold = cluster_threshold
         self.sd = self._init_speaker_diarization()
         self.recognizer = self._init_recognizer()
+
+    def _auto_select_provider(self) -> str:
+        """
+        Automatically select the best available hardware provider.
+        Returns:
+            The selected provider ('cuda', 'coreml', or 'cpu')
+        """
+        try:
+            import torch
+            if torch.cuda.is_available():
+                return 'cuda'
+        except ImportError:
+            pass
+
+        try:
+            import coremltools
+            return 'coreml'
+        except ImportError:
+            pass
+
+        return 'cpu'
 
     def _init_speaker_diarization(self):
         """
@@ -80,7 +120,7 @@ class SpeechRecognizer:
             model=model,
             tokens=tokens,
             use_itn=True,
-            debug=True,
+            debug=False,
             provider=self.provider,
         )
 
@@ -100,7 +140,7 @@ class SpeechRecognizer:
 
     def _progress_callback(self, num_processed_chunk: int, num_total_chunks: int) -> int:
         progress = num_processed_chunk / num_total_chunks * 100
-        print(f"Progress: {progress:.3f}%")
+        logging.info(f"Progress: {progress:.3f}%")
         return 0
 
     def process_audio(self, audio_path: str):
@@ -124,24 +164,33 @@ class SpeechRecognizer:
             )
 
         # Process speaker diarization
-        print("Processing speaker diarization...")
+        logging.info("Processing speaker diarization...")
+        start_time = dt.datetime.now()
         diarization_result = self.sd.process(audio, callback=self._progress_callback).sort_by_start_time()
+        diarization_time = dt.datetime.now() - start_time
 
         # Process speech recognition for each segment
-        print("\nProcessing speech recognition...")
-        results = []
+        logging.info("Processing speech recognition...")
+        sentences = []
+
+        asr_start_time = dt.datetime.now()
         for segment in diarization_result:
             text = self._process_audio_segment(
                 audio, sample_rate, segment.start, segment.end
             )
-            results.append({
+            sentences.append({
                 "speaker": f"speaker_{segment.speaker:02}",
                 "start": segment.start,
                 "end": segment.end,
                 "text": text
             })
+        asr_time = dt.datetime.now() - asr_start_time
 
-        return results
+        return {
+            'sentences': sentences,
+            'diarization_time': diarization_time.total_seconds(),
+            'asr_time': asr_time.total_seconds()
+        }
 
 
 def main():
@@ -151,7 +200,7 @@ def main():
     results = recognizer.process_audio("./0-four-speakers-zh.wav")
 
     # Print results
-    print("\nTranscription Results:")
+    logging.info("Transcription Results:")
     print("-" * 80)
     for result in results:
         print(
