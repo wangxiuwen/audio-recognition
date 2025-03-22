@@ -11,6 +11,7 @@ import os
 async def lifespan_event(app: FastAPI):
     try:
         # 读取 provider 选项
+        args = parse_args()
         provider = args.provider  # 从命令行参数获取 provider
         # 初始化语音识别器
         app.state.recognizer = SpeechRecognizer(provider)
@@ -50,10 +51,24 @@ async def process_audio(audio: UploadFile = File(...)):
 
     try:
         # 保存上传的音频文件
-        file_path = f"temp_{audio.filename}"
+        import uuid
+
+        # 确保multimedia目录存在并验证路径
+        multimedia_dir = os.path.join(BASE_DIR, "multimedia")
+        os.makedirs(multimedia_dir, exist_ok=True)
+        if not os.path.isdir(multimedia_dir):
+            raise RuntimeError(f"无法创建或访问目录: {multimedia_dir}")
+
+        # 使用uuid生成唯一文件名
+        file_content = await audio.read()
+        file_uuid = str(uuid.uuid4())
+
+        # 生成新文件名
+        file_path = os.path.join(multimedia_dir, f"{file_uuid}_{audio.filename}")
+
+        # 将文件内容写入新文件
         with open(file_path, "wb") as buffer:
-            content = await audio.read()
-            buffer.write(content)
+            buffer.write(file_content)
 
         # 处理音频文件
         results = app.state.recognizer.process_audio(file_path)
@@ -81,4 +96,4 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=args.port)
+    uvicorn.run("main:app", host="0.0.0.0", port=args.port, workers=4)
