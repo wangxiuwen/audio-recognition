@@ -143,19 +143,24 @@ class SpeechRecognizer:
         logging.info(f"Progress: {progress:.3f}%")
         return 0
 
-    def process_audio(self, audio_path: str):
+    def process_audio(self, audio_content: bytes, file_extension: str):
         """
-        Process an audio file and return the transcription results.
+        Process audio content directly and return the transcription results.
         Args:
-            audio_path: Path to the audio file
+            audio_content: The audio file content in bytes
+            file_extension: The file extension of the audio file
         Returns:
             List of dictionaries containing speaker ID, timestamps, and transcribed text
         """
-        if not Path(audio_path).is_file():
-            raise RuntimeError(f"{audio_path} does not exist")
+        import io
+        import soundfile as sf
+
+        # Create in-memory file-like object
+        audio_file = io.BytesIO(audio_content)
+        audio_file.name = f"audio.{file_extension}"
 
         # Load audio file
-        audio, sample_rate = sf.read(audio_path, dtype="float32", always_2d=True)
+        audio, sample_rate = sf.read(audio_file, dtype="float32", always_2d=True)
         audio = audio[:, 0]  # only use the first channel
 
         if sample_rate != self.sd.sample_rate:
