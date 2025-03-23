@@ -61,8 +61,7 @@ async def process_audio(audio: UploadFile = File(...)):
 
     try:
         content = await audio.read()
-        file_extension = os.path.splitext(audio.filename)[1]
-        results = app.state.recognizer.process_audio(content, file_extension)
+        results = app.state.recognizer.process_audio(content)
         
         return JSONResponse(content=results)
 

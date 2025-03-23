@@ -14,7 +14,7 @@ import datetime as dt
 import sherpa_onnx
 import logging
 import soundfile as sf
-
+import os
 import coloredlogs
 
 # 配置带颜色的日志输出
@@ -140,7 +140,7 @@ class SpeechRecognizer:
         logging.info(f"Progress: {progress:.3f}%")
         return 0
 
-    def process_audio(self, audio_content: bytes, file_extension: str):
+    def process_audio(self, audio_content: bytes):
         """
         Process audio content directly and return the transcription results.
         Args:
@@ -154,8 +154,6 @@ class SpeechRecognizer:
 
         # Create in-memory file-like object
         audio_file = io.BytesIO(audio_content)
-        audio_file.name = f"audio.{file_extension}"
-
         # Load audio file
         audio, sample_rate = sf.read(audio_file, dtype="float32", always_2d=True)
         audio = audio[:, 0]  # only use the first channel

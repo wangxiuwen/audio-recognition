@@ -52,7 +52,7 @@ def init_speaker_diarization(num_speakers: int = -1, cluster_threshold: float = 
         A smaller cluster_threshold leads to more clusters, i.e., more speakers.
         A larger cluster_threshold leads to fewer clusters, i.e., fewer speakers.
     """
-    segmentation_model = "./models/sherpa-onnx-pyannote-segmentation-3-0/model.onnx"
+    segmentation_model = "../models/sherpa-onnx-pyannote-segmentation-3-0/model.onnx"
     embedding_extractor_model = (
         "../models/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx"
     )
