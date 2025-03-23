@@ -42,3 +42,12 @@ python main.py --port 29999
 ## 许可证
 
 MIT License
+
+# 参考链接
+
+```
+https://k2-fsa.github.io/sherpa/onnx/cuda.html
+https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+https://mirrors.ustc.edu.cn/help/libnvidia-container.html
+https://github.com/k2-fsa/sherpa-onnx/pull/1586
+```

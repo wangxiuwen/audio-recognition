@@ -1,11 +1,16 @@
-workers = 16
+workers = 4
 bind = "0.0.0.0:29999"
 worker_class = "uvicorn.workers.UvicornWorker"  # 使用 UvicornWorker
-timeout = 120  # 增加超时时间，适用于大文件
+timeout = 1200  # 增加超时时间，适用于大文件
 loglevel = "debug"  # 设置为 debug 以便调试
 threads = 1
-preload_app = True  # 开启 preload_app，确保模型在 master 进程中加载
+preload_app = False  # 开启 preload_app，确保模型在 master 进程中加载
 import gc
+import os
+
+# 设置环境变量
+os.environ['PROVIDER'] = 'cuda'
+os.environ['LOG_LEVEL'] = os.getenv('LOG_LEVEL', 'info')
 
 # 冻结主进程内存，避免垃圾回收触发 copy-on-write
 def when_ready(server):

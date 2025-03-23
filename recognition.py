@@ -164,9 +164,9 @@ class SpeechRecognizer:
         audio = audio[:, 0]  # only use the first channel
 
         if sample_rate != self.sd.sample_rate:
-            raise RuntimeError(
-                f"Expected sample rate: {self.sd.sample_rate}, given: {sample_rate}"
-            )
+            import librosa
+            audio = librosa.resample(audio, orig_sr=sample_rate, target_sr=self.sd.sample_rate)
+            sample_rate = self.sd.sample_rate
 
         # Process speaker diarization
         logging.info("Processing speaker diarization...")
