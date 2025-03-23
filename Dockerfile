@@ -54,8 +54,8 @@ RUN conda run -n audio pip install --upgrade pip setuptools wheel \
     && conda run -n audio pip install python-multipart \
     && conda run -n audio pip install torch \
     && conda run -n audio pip install librosa \
-    && conda run -n audio pip install onnx \
-    && conda run -n audio pip install onnxruntime-gpu \
+    # && conda run -n audio pip install onnx \
+    # && conda run -n audio pip install onnxruntime-gpu \
     && rm -rf ~/.cache/pip
 
 
