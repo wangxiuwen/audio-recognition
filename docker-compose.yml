@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  audio-rec:
+    build: .
+    ports:
+      - "29999:29999"
+    environment:
+      - PROVIDER=cuda
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    volumes:
+      - ./logs:/app/logs
+      - ./models:/app/models
+    restart: unless-stopped
