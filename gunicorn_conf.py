@@ -4,10 +4,16 @@ worker_class = "uvicorn.workers.UvicornWorker"  # 使用 UvicornWorker
 timeout = 120  # 增加超时时间，适用于大文件
 loglevel = "debug"  # 设置为 debug 以便调试
 threads = 1
-preload_app = False  # 关闭 preload_app，确保 fork 后初始化模型
+preload_app = True  # 开启 preload_app，确保模型在 master 进程中加载
+import gc
+
+# 冻结主进程内存，避免垃圾回收触发 copy-on-write
+def when_ready(server):
+    gc.freeze()  
 
 # 在主进程中加载模型
 def on_starting(server):
+    print("loading SpeechRecognizer... " + '*' * 20)
     from recognition import SpeechRecognizer
     import os
     provider = os.getenv('PROVIDER', 'cpu')  # 默认使用 'cpu'，避免警告
