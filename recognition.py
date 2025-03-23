@@ -196,18 +196,22 @@ class SpeechRecognizer:
 def main():
     # Example usage
     recognizer = SpeechRecognizer()
-    results = recognizer.process_audio("./tests/0-four-speakers-zh.wav")
+    
+    # Read the audio file as bytes
+    with open("./tests/0-four-speakers-zh.wav", "rb") as f:
+        audio_content = f.read()
+    
+    results = recognizer.process_audio(audio_content)
 
     # Print results
     logging.info("Transcription Results:")
     print("-" * 80)
-    for result in results:
+    for result in results['sentences']:  # Changed to access 'sentences' key
         print(
             f"[{result['speaker']}] "
             f"{result['start']:.2f}s - {result['end']:.2f}s: "
             f"{result['text']}"
         )
-
 
 if __name__ == "__main__":
     main()
