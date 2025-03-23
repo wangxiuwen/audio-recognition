@@ -38,11 +38,9 @@ coloredlogs.install(
 class SpeechRecognizer:
     def __init__(self, provider: str = None, num_speakers: int = -1, cluster_threshold: float = 0.5):
 
-        if provider is None:
-            provider = self._auto_select_provider()
-
-        logging.info(f"Using provider: {provider}")
         self.provider = provider or self._auto_select_provider()
+        logging.info(f"Using provider: {self.provider}")
+
         self.num_speakers = num_speakers
         self.cluster_threshold = cluster_threshold
         self.sd = self._init_speaker_diarization()
@@ -88,7 +86,6 @@ class SpeechRecognizer:
             embedding=sherpa_onnx.SpeakerEmbeddingExtractorConfig(
                 model=embedding_extractor_model,
                 provider=self.provider,
-
             ),
             clustering=sherpa_onnx.FastClusteringConfig(
                 num_clusters=self.num_speakers, threshold=self.cluster_threshold,
@@ -201,8 +198,7 @@ class SpeechRecognizer:
 def main():
     # Example usage
     recognizer = SpeechRecognizer()
-
-    results = recognizer.process_audio("./0-four-speakers-zh.wav")
+    results = recognizer.process_audio("./tests/0-four-speakers-zh.wav")
 
     # Print results
     logging.info("Transcription Results:")

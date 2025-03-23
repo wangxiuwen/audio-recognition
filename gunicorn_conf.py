@@ -1,4 +1,4 @@
-workers = 4
+workers = 1
 bind = "0.0.0.0:29999"
 worker_class = "uvicorn.workers.UvicornWorker"  # 使用 UvicornWorker
 timeout = 1200  # 增加超时时间，适用于大文件
