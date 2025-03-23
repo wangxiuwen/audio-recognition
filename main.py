@@ -7,15 +7,7 @@ from recognition import SpeechRecognizer
 import argparse
 import tempfile
 import os
-from contextlib import asynccontextmanager
 
-# 默认的空 lifespan 事件（用于 Gunicorn）
-@asynccontextmanager
-async def empty_lifespan(app: FastAPI):
-    yield
-
-# 完整的 lifespan 事件（用于 Uvicorn）
-@asynccontextmanager
 async def lifespan_event(app: FastAPI):
     try:
         provider = os.getenv('PROVIDER')
@@ -34,15 +26,11 @@ async def lifespan_event(app: FastAPI):
         del app.state.recognizer
         print("Lifespan: Recognizer cleaned up")
 
-# 检查是否通过 Gunicorn 启动
-def is_gunicorn():
-    return "gunicorn" in os.environ.get("SERVER_SOFTWARE", "") or "gunicorn" in os.environ.get("PROCESS_TYPE", "")
-
 app = FastAPI(
     title="说话人分离和语音识别服务",
     description="基于深度学习的说话人分离和语音识别服务",
     version="1.0.0",
-    lifespan=empty_lifespan if is_gunicorn() else lifespan_event
+    lifespan=lifespan_event
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
