@@ -15,7 +15,7 @@ RUN echo 'deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted
     && echo 'deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse' >> /etc/apt/sources.list \
     && echo 'deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse' >> /etc/apt/sources.list \
     && apt-get update \
-    && apt-get install -y wget curl git bzip2 libasound2 \
+    && apt-get install -y wget curl git bzip2 libasound2 vim \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -52,6 +52,10 @@ RUN conda run -n audio pip install --upgrade pip setuptools wheel \
     && conda run -n audio pip install coloredlogs \
     && conda run -n audio pip install jinja2 \
     && conda run -n audio pip install python-multipart \
+    && conda run -n audio pip install torch \
+    && conda run -n audio pip install librosa \
+    && conda run -n audio pip install onnx \
+    && conda run -n audio pip install onnxruntime-gpu \
     && rm -rf ~/.cache/pip
 
 
