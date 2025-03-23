@@ -7,15 +7,21 @@ from recognition import SpeechRecognizer
 import argparse
 import tempfile
 import os
+from contextlib import asynccontextmanager
 
-# 使用 lifespan 事件加载模型
+# 默认的空 lifespan 事件（用于 Gunicorn）
+@asynccontextmanager
+async def empty_lifespan(app: FastAPI):
+    yield
+
+# 完整的 lifespan 事件（用于 Uvicorn）
+@asynccontextmanager
 async def lifespan_event(app: FastAPI):
     try:
-        # 从环境变量读取 provider 选项
         provider = os.getenv('PROVIDER')
-        # 初始化语音识别器
         app.state.recognizer = SpeechRecognizer(provider)
         app.state.models_loaded = True
+        print(f"Lifespan: Recognizer initialized with provider {provider}")
     except Exception as e:
         error_msg = str(e)
         print(f"Error loading models on startup: {error_msg}")
@@ -24,15 +30,19 @@ async def lifespan_event(app: FastAPI):
 
     yield
 
-    # 清理资源
     if hasattr(app.state, 'recognizer'):
         del app.state.recognizer
+        print("Lifespan: Recognizer cleaned up")
+
+# 检查是否通过 Gunicorn 启动
+def is_gunicorn():
+    return "gunicorn" in os.environ.get("SERVER_SOFTWARE", "") or "gunicorn" in os.environ.get("PROCESS_TYPE", "")
 
 app = FastAPI(
     title="说话人分离和语音识别服务",
     description="基于深度学习的说话人分离和语音识别服务",
     version="1.0.0",
-    lifespan=lifespan_event
+    lifespan=empty_lifespan if is_gunicorn() else lifespan_event
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -52,7 +62,6 @@ async def process_audio(audio: UploadFile = File(...)):
     try:
         content = await audio.read()
         file_extension = os.path.splitext(audio.filename)[1]
-        # Process audio content directly
         results = app.state.recognizer.process_audio(content, file_extension)
         
         return JSONResponse(content=results)
@@ -69,5 +78,7 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
+    if args.provider:
+        os.environ['PROVIDER'] = args.provider  # 设置环境变量以供 lifespan 使用
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=args.port, workers=1)
