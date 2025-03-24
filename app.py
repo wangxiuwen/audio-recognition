@@ -80,10 +80,10 @@ async def process_audio(audio):
             raise ValueError("无效的音频数据：音频为空")
 
         # 归一化音频数据到 -1 到 1
-        audio_array = audio_array.astype(np.float32)
-        if np.max(np.abs(audio_array)) > 0:
-            audio_array = audio_array / 32768.0  # 将16位整数转换为-1到1之间的浮点数
-        logger.info(f"音频采样率: {sample_rate}, 音频数据形状: {audio_array.shape}, 音频数据类型: {audio_array.dtype}")
+        # audio_array = audio_array.astype(np.float32)
+        # if np.max(np.abs(audio_array)) > 0:
+        #     audio_array = audio_array / 32768.0  # 将16位整数转换为-1到1之间的浮点数
+        # logger.info(f"音频采样率: {sample_rate}, 音频数据形状: {audio_array.shape}, 音频数据类型: {audio_array.dtype}")
 
         # 直接进行ASR语音识别
         text = await default_context_cache.asr_engine.async_transcribe_np(audio_array)
