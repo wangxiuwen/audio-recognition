@@ -1,0 +1,5 @@
+gradio>=4.0.0
+fastapi>=0.68.0
+python-multipart>=0.0.5
+numpy>=1.19.5
+onnxruntime>=1.15.0
