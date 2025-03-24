@@ -10,7 +10,7 @@ config: Config = validate_config(read_yaml("config.yaml"))
 default_context_cache = ServiceContext()
 default_context_cache.load_from_config(config)
 
-async def process_audio(audio):
+async def process_audio_vad(audio):
     try:
         if audio is None:
             raise ValueError("未提供音频文件")
@@ -21,15 +21,22 @@ async def process_audio(audio):
             raise ValueError("无效的音频数据：音频为空")
 
         # 归一化音频数据到 -1 到 1
-        audio_array = audio_array.astype(np.float32) / np.max(np.abs(audio_array))
+        audio_array = audio_array.astype(np.float32)
+        if np.max(np.abs(audio_array)) > 0:
+            audio_array = audio_array / 32768.0  # 将16位整数转换为-1到1之间的浮点数
+        logger.info(f"音频采样率: {sample_rate}, 音频数据形状: {audio_array.shape}, 音频数据类型: {audio_array.dtype}")
 
         # 使用 VAD 检测语音活动
         vad_results = list(default_context_cache.vad_engine.detect_speech(audio_array))
-        logger.info("VAD results:", vad_results)
+        if len(vad_results) == 0:
+            logger.warning("VAD未检测到语音片段")
+            return "未检测到有效的语音片段"
 
         transcriptions = []
         for segment in vad_results:
+            logger.info(f"VAD ----segment: {segment}")
             if isinstance(segment, tuple) and len(segment) == 3:
+                logger.info(f"VAD ----: {start} {end}")
                 start, end, audio_bytes = segment  # 解析 (start, end, audio_bytes)
                 logger.info(start, end, len(audio_bytes))
 
@@ -56,6 +63,32 @@ async def process_audio(audio):
             "timestamps": [{'text': t['text'], 'start': t['start'], 'end': t['end']} for t in transcriptions]
         }
         return f"转录结果: {output['transcription']}\n时间戳: {output['timestamps']}"
+
+    except Exception as e:
+        logger.error(f"Audio processing failed: {str(e)}")
+        return f"处理失败：{str(e)}"
+
+
+async def process_audio(audio):
+    try:
+        if audio is None:
+            raise ValueError("未提供音频文件")
+
+        sample_rate, audio_array = audio  # Gradio 传入的是 (sample_rate, numpy_array)
+
+        if len(audio_array) == 0:
+            raise ValueError("无效的音频数据：音频为空")
+
+        # 归一化音频数据到 -1 到 1
+        audio_array = audio_array.astype(np.float32)
+        if np.max(np.abs(audio_array)) > 0:
+            audio_array = audio_array / 32768.0  # 将16位整数转换为-1到1之间的浮点数
+        logger.info(f"音频采样率: {sample_rate}, 音频数据形状: {audio_array.shape}, 音频数据类型: {audio_array.dtype}")
+
+        # 直接进行ASR语音识别
+        text = await default_context_cache.asr_engine.async_transcribe_np(audio_array)
+
+        return f"转录结果: {text}"
 
     except Exception as e:
         logger.error(f"Audio processing failed: {str(e)}")
@@ -93,4 +126,4 @@ def create_ui():
 
 if __name__ == "__main__":
     interface = create_ui()
-    interface.launch(debug=True, server_name="0.0.0.0", server_port=29999)
+    interface.launch(debug=True, server_name="0.0.0.0", server_port=29999, share=False)
