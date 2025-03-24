@@ -7,14 +7,18 @@ system_config:
 # === 自动语音识别 ===
 asr_config:
   # 语音转文本模型选项："faster_whisper", "whisper_cpp", "whisper", "fun_asr", "sherpa_onnx_asr"
-  asr_model: "whisper" # 使用的语音识别模型
+  # 使用的语音识别模型
+  asr_model: "whisper_cpp"
 
   # Faster Whisper 配置
   faster_whisper:
     model_path: "distil-large-v3" # 模型路径，distil-medium.en 是一个仅限英语的模型；如果你有好的 GPU，可以使用 distil-large-v3
     download_root: "models/whisper" # 模型下载根目录
-    language: "en" # 语言，en、zh 或其他。留空表示自动检测。
-    device: "auto" # 设备，cpu、cuda 或 auto。faster-whisper 不支持 mps
+    # 语言 af, am, ar, as, az, ba, be, bg, bn, bo, br, bs, ca, cs, cy, da, de, el, en, es, et, eu, fa, fi, fo, fr, gl, gu, ha, haw, he, hi, hr, ht, hu, hy, id, is, it, ja, jw, ka, kk, km, kn, ko, la, lb, ln, lo, lt, lv, mg, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, nn, no, oc, pa, pl, ps, pt, ro, ru, sa, sd, si, sk, sl, sn, so, sq, sr, su, sv, sw, ta, te, tg, th, tk, tl, tr, tt, uk, ur, uz, vi, yi, yo, zh, yue
+    # 留空表示自动检测。
+    language:
+    # # 设备，cpu、cuda 或 auto。faster-whisper 不支持 mps
+    device: "auto"
 
   whisper_cpp:
     # 所有可用模型都列在 https://absadiki.github.io/pywhispercpp/#pywhispercpp.constants.AVAILABLE_MODELS
