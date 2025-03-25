@@ -35,7 +35,7 @@ class FunASRConfig(BaseModel):
     model_name: str = Field("iic/SenseVoiceSmall", alias="model_name")
     vad_model: str = Field("fsmn-vad", alias="vad_model")
     punc_model: str = Field("ct-punc", alias="punc_model")
-    device: Literal["cpu", "cuda"] = Field("cpu", alias="device")
+    device: Literal["cpu", "cuda", 'mps'] = Field("cpu", alias="device")
     disable_update: bool = Field(True, alias="disable_update")
     ncpu: int = Field(4, alias="ncpu")
     hub: Literal["ms", "hf"] = Field("ms", alias="hub")

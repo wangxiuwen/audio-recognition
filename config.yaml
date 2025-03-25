@@ -8,20 +8,25 @@ system_config:
 asr_config:
   # 语音转文本模型选项："faster_whisper", "whisper_cpp", "whisper", "fun_asr", "sherpa_onnx_asr"
   # 使用的语音识别模型
-  asr_model: "whisper"
+  asr_model: "sherpa_onnx_asr"
 
   # Faster Whisper 配置
   faster_whisper:
-    model_path: "distil-large-v3" # 模型路径，distil-medium.en 是一个仅限英语的模型；如果你有好的 GPU，可以使用 distil-large-v3
-    download_root: "models/whisper" # 模型下载根目录
+    # https://huggingface.co/Systran
+    # "distil-large-v3", "large-v3"
+    model_path: "large-v3"
+    # 模型下载根目录, 启动时模型会自动下载到该目录
+    download_root: "models/whisper"
     # 语言 af, am, ar, as, az, ba, be, bg, bn, bo, br, bs, ca, cs, cy, da, de, el, en, es, et, eu, fa, fi, fo, fr, gl, gu, ha, haw, he, hi, hr, ht, hu, hy, id, is, it, ja, jw, ka, kk, km, kn, ko, la, lb, ln, lo, lt, lv, mg, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, nn, no, oc, pa, pl, ps, pt, ro, ru, sa, sd, si, sk, sl, sn, so, sq, sr, su, sv, sw, ta, te, tg, th, tk, tl, tr, tt, uk, ur, uz, vi, yi, yo, zh, yue
     # 留空表示自动检测。
-    language:
-    # # 设备，cpu、cuda 或 auto。faster-whisper 不支持 mps
+    language: "zh"
+    # 设备，cpu、cuda 或 auto。faster-whisper 不支持 mps
     device: "auto"
 
   whisper_cpp:
-    # 所有可用模型都列在 https://absadiki.github.io/pywhispercpp/#pywhispercpp.constants.AVAILABLE_MODELS
+    # https://absadiki.github.io/pywhispercpp/#pywhispercpp.constants.AVAILABLE_MODELS
+    # GGML_CUDA=1 pip install git+https://github.com/absadiki/pywhispercpp
+    # WHISPER_COREML=1 pip install git+https://github.com/absadiki/pywhispercpp
     model_name: "large-v3" # 模型名称
     model_dir: "models/whisper" # 模型目录
     print_realtime: True # 是否实时打印
@@ -37,12 +42,14 @@ asr_config:
   # FunASR 目前需要在启动时连接互联网以下载/检查模型。您可以在初始化后断开互联网连接。
   # 或者您可以使用 Faster-Whisper 获得完全离线的体验
   fun_asr:
-    model_name: "iic/SenseVoiceSmall" # 或 "paraformer-zh"
+    # "iic/SenseVoiceSmall", "paraformer-zh", "iic/Whisper-large-v3"
+    model_name: "iic/SenseVoiceSmall"
     vad_model: "fsmn-vad" # 仅当音频长度超过 30 秒时才需要使用
     punc_model: "ct-punc" # 标点符号模型
-    device: "cpu" # 设备
+    # "cpu"
+    device: "mps" # 设备
     disable_update: True # 是否每次启动时都检查 FunASR 更新
-    ncpu: 4 # CPU 内部操作的线程数
+    # ncpu: 4 # CPU 内部操作的线程数
     hub: "ms" # ms（默认）从 ModelScope 下载模型。使用 hf 从 Hugging Face 下载模型。
     use_itn: False # 是否使用数字格式转换
     language: "auto" # zh, en, auto
