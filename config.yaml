@@ -8,7 +8,7 @@ system_config:
 asr_config:
   # 语音转文本模型选项："faster_whisper", "whisper_cpp", "whisper", "fun_asr", "sherpa_onnx_asr"
   # 使用的语音识别模型
-  asr_model: "sherpa_onnx_asr"
+  asr_model: "faster_whisper"
 
   # Faster Whisper 配置
   faster_whisper:
@@ -57,45 +57,52 @@ asr_config:
   # pip install sherpa-onnx
   # 文档：https://k2-fsa.github.io/sherpa/onnx/index.html
   # ASR 模型下载：https://github.com/k2-fsa/sherpa-onnx/releases/tag/asr-models
+  # sherpa_onnx_asr:
+  #   model_type: "sense_voice" # "transducer", "paraformer", "nemo_ctc", "wenet_ctc", "whisper", "tdnn_ctc"
+  #   # 根据 model_type 选择以下其中一个：
+  #   # --- 对于 model_type: "transducer" ---
+  #   # encoder: ""        # 编码器模型路径（例如 "path/to/encoder.onnx"）
+  #   # decoder: ""        # 解码器模型路径（例如 "path/to/decoder.onnx"）
+  #   # joiner: ""         # 连接器模型路径（例如 "path/to/joiner.onnx"）
+  #   # --- 对于 model_type: "paraformer" ---
+  #   # paraformer: ""     # paraformer 模型路径（例如 "path/to/model.onnx"）
+  #   # --- 对于 model_type: "nemo_ctc" ---
+  #   # nemo_ctc: ""        # NeMo CTC 模型路径（例如 "path/to/model.onnx"）
+  #   # --- 对于 model_type: "wenet_ctc" ---
+  #   # wenet_ctc: ""       # WeNet CTC 模型路径（例如 "path/to/model.onnx"）
+  #   # --- 对于 model_type: "tdnn_ctc" ---
+  #   # tdnn_model: ""      # TDNN CTC 模型路径（例如 "path/to/model.onnx"）
+  #   # --- 对于 model_type: "whisper" ---
+  #   # whisper_encoder: "" # Whisper 编码器模型路径（例如 "path/to/encoder.onnx"）
+  #   # whisper_decoder: "" # Whisper 解码器模型路径（例如 "path/to/decoder.onnx"）
+  #   # --- 对于 model_type: "sense_voice" ---
+  #   # SenseVoice 我写了自动下载模型的逻辑，其他模型要自己手动下载
+  #   sense_voice: "./models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/model.int8.onnx" # SenseVoice 模型路径（例如 "path/to/model.onnx"）
+  #   tokens: "./models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/tokens.txt" # tokens.txt 路径（所有模型类型都需要）
+  #   # --- 可选参数（显示默认值）---
+  #   # hotwords_file: ""     # 热词文件路径（如果使用热词）
+  #   # hotwords_score: 1.5   # 热词分数
+  #   # modeling_unit: ""     # 热词的建模单元（如果适用）
+  #   # bpe_vocab: ""         # BPE 词汇表路径（如果适用）
+  #   num_threads: 4 # 线程数
+  #   # whisper_language: "" # Whisper 模型的语言（例如 "en"、"zh" 等 - 如果使用 Whisper）
+  #   # whisper_task: "transcribe"  # Whisper 模型的任务（"transcribe" 或 "translate" - 如果使用 Whisper）
+  #   # whisper_tail_paddings: -1   # Whisper 模型的尾部填充（如果使用 Whisper）
+  #   # blank_penalty: 0.0    # 空白符号的惩罚
+  #   # decoding_method: "greedy_search"  # "greedy_search" 或 "modified_beam_search"
+  #   # debug: False # 启用调试模式
+  #   # sample_rate: 16000 # 采样率（应与模型预期的采样率匹配）
+  #   # feature_dim: 80       # 特征维度（应与模型预期的特征维度匹配）
+  #   use_itn: True # 对 SenseVoice 模型启用 ITN（如果不是 SenseVoice 模型，则应设置为 False）
+  #   # 推理平台（cpu 或 cuda）(cuda 需要额外配置，请参考文档)
+  #   provider: "coreml"
+
   sherpa_onnx_asr:
-    model_type: "sense_voice" # "transducer", "paraformer", "nemo_ctc", "wenet_ctc", "whisper", "tdnn_ctc"
-    # 根据 model_type 选择以下其中一个：
-    # --- 对于 model_type: "transducer" ---
-    # encoder: ""        # 编码器模型路径（例如 "path/to/encoder.onnx"）
-    # decoder: ""        # 解码器模型路径（例如 "path/to/decoder.onnx"）
-    # joiner: ""         # 连接器模型路径（例如 "path/to/joiner.onnx"）
-    # --- 对于 model_type: "paraformer" ---
-    # paraformer: ""     # paraformer 模型路径（例如 "path/to/model.onnx"）
-    # --- 对于 model_type: "nemo_ctc" ---
-    # nemo_ctc: ""        # NeMo CTC 模型路径（例如 "path/to/model.onnx"）
-    # --- 对于 model_type: "wenet_ctc" ---
-    # wenet_ctc: ""       # WeNet CTC 模型路径（例如 "path/to/model.onnx"）
-    # --- 对于 model_type: "tdnn_ctc" ---
-    # tdnn_model: ""      # TDNN CTC 模型路径（例如 "path/to/model.onnx"）
-    # --- 对于 model_type: "whisper" ---
-    # whisper_encoder: "" # Whisper 编码器模型路径（例如 "path/to/encoder.onnx"）
-    # whisper_decoder: "" # Whisper 解码器模型路径（例如 "path/to/decoder.onnx"）
-    # --- 对于 model_type: "sense_voice" ---
-    # SenseVoice 我写了自动下载模型的逻辑，其他模型要自己手动下载
-    sense_voice: "./models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/model.int8.onnx" # SenseVoice 模型路径（例如 "path/to/model.onnx"）
-    tokens: "./models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/tokens.txt" # tokens.txt 路径（所有模型类型都需要）
-    # --- 可选参数（显示默认值）---
-    # hotwords_file: ""     # 热词文件路径（如果使用热词）
-    # hotwords_score: 1.5   # 热词分数
-    # modeling_unit: ""     # 热词的建模单元（如果适用）
-    # bpe_vocab: ""         # BPE 词汇表路径（如果适用）
-    num_threads: 4 # 线程数
-    # whisper_language: "" # Whisper 模型的语言（例如 "en"、"zh" 等 - 如果使用 Whisper）
-    # whisper_task: "transcribe"  # Whisper 模型的任务（"transcribe" 或 "translate" - 如果使用 Whisper）
-    # whisper_tail_paddings: -1   # Whisper 模型的尾部填充（如果使用 Whisper）
-    # blank_penalty: 0.0    # 空白符号的惩罚
-    # decoding_method: "greedy_search"  # "greedy_search" 或 "modified_beam_search"
-    # debug: False # 启用调试模式
-    # sample_rate: 16000 # 采样率（应与模型预期的采样率匹配）
-    # feature_dim: 80       # 特征维度（应与模型预期的特征维度匹配）
-    use_itn: True # 对 SenseVoice 模型启用 ITN（如果不是 SenseVoice 模型，则应设置为 False）
-    # 推理平台（cpu 或 cuda）(cuda 需要额外配置，请参考文档)
+    model_type: "whisper"
     provider: "coreml"
+    whisper_encoder: "models/sherpa-onnx-whisper-large-v3/large-v3-encoder.int8.onnx"
+    whisper_decoder: "models/sherpa-onnx-whisper-large-v3/large-v3-decoder.int8.onnx"
+    tokens: "models/sherpa-onnx-whisper-large-v3/large-v3-tokens.txt"
 
 # =================== Voice Activity Detection ===================
 vad_config:
